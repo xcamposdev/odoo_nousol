@@ -1,0 +1,20 @@
+<odoo>
+  <data>
+    
+    <record id="view_res_partner_form_custom_inherit" model="ir.ui.view">
+        <field name="name">view.res.partner.form.custom.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='sales_purchases']/group[@name='container_row_2']/group[@name='sale']/field[@name='user_id']" position="before">
+                <field name="x_descuento_comercial" />
+                <field name="x_descuento_pp" />
+                <field name="x_descuento_portes" />
+            </xpath>
+            <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='sales_purchases']/group[@name='container_row_2']/group[@name='sale']/field[@name='user_id']" position="after">
+                <field name="x_transportista" />
+            </xpath>
+        </field>
+    </record>
+  </data>
+</odoo>
