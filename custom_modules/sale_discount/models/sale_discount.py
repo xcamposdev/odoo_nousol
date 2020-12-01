@@ -15,15 +15,12 @@ class sale_discount_custom(models.Model):
         [('name','=',self.env['ir.config_parameter'].sudo().get_param('x_producto_descuento_comercial'))], limit=1))
     product_descuento_pp = fields.Many2one("product.product", store=False, default=lambda self: self.env['product.product'].search(\
         [('name','=',self.env['ir.config_parameter'].sudo().get_param('x_producto_descuento_pp'))], limit=1))
-    product_descuento_portes = fields.Many2one("product.product", store=False, default=lambda self: self.env['product.product'].search(\
-        [('name','=',self.env['ir.config_parameter'].sudo().get_param('x_producto_descuento_portes'))], limit=1))
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
         super(sale_discount_custom, self).onchange_partner_id()
         self.crud_discount_line(self.product_descuento_comercial, self.partner_id.x_descuento_comercial)
         self.crud_discount_line(self.product_descuento_pp, self.partner_id.x_descuento_pp)
-        self.crud_discount_line(self.product_descuento_portes, self.partner_id.x_descuento_portes)
 
     def crud_discount_line(self, product_id, amount_discount):
         if product_id:
@@ -40,33 +37,29 @@ class sale_discount_custom(models.Model):
             elif order_line and amount_discount == 0: #Delete
                 self.order_line = [(2,order_line[0].id)]
 
+    # @api.onchange('order_line')
+    # def onchange_amount_all(self):
     @api.depends('order_line.price_total')
     def _amount_all(self):
-        super(sale_discount_custom, self)._amount_all()
         for order in self:
             subtotal = 0
             for line in self.order_line:
                 if (self.product_descuento_comercial and self.product_descuento_comercial.id != line.product_id.id) and \
-                    (self.product_descuento_pp and self.product_descuento_pp.id != line.product_id.id) and \
-                    (self.product_descuento_portes and self.product_descuento_portes.id != line.product_id.id):
+                    (self.product_descuento_pp and self.product_descuento_pp.id != line.product_id.id):
                     subtotal += line.price_subtotal
             
-
             if self.product_descuento_comercial:
                 order_line = list(line for line in self.order_line if line.product_id.id == self.product_descuento_comercial.id)
                 if(order_line):
                     discount = (subtotal * self.partner_id.x_descuento_comercial)/100
-                    order_line[0].price_unit = discount * (-1)
+                    order_line[0].update({'price_unit': discount * (-1)})
+                    #order_line[0].price_unit = discount * (-1)
                     subtotal = subtotal - discount
             if self.product_descuento_pp:
                 order_line = list(line for line in self.order_line if line.product_id.id == self.product_descuento_pp.id)
                 if order_line:
                     discount = (subtotal * self.partner_id.x_descuento_pp)/100
-                    order_line[0].price_unit = discount * (-1)
+                    order_line[0].update({'price_unit': discount * (-1)})
+                    #order_line[0].price_unit = discount * (-1)
                     subtotal = subtotal - discount
-            if self.product_descuento_portes:
-                order_line = list(line for line in self.order_line if line.product_id.id == self.product_descuento_portes.id)
-                if order_line:
-                    discount = (subtotal * self.partner_id.x_descuento_portes)/100
-                    order_line[0].price_unit = discount * (-1)
-                    subtotal = subtotal - discount
+        super(sale_discount_custom, self)._amount_all()

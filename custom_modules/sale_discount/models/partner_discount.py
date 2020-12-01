@@ -12,5 +12,4 @@ class partner_discount_custom(models.Model):
 
     x_descuento_comercial = fields.Float(string="Descuento Comercial", default=0)
     x_descuento_pp = fields.Float(string="Descuento PP", default=0)
-    x_descuento_portes = fields.Float(string="Descuentos Portes", default=0)
     x_transportista = fields.Many2one('res.partner', string="Transportista")

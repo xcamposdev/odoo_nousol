@@ -10,10 +10,6 @@
             <field name="key">x_producto_descuento_pp</field>
             <field name="value">Descuento PP</field>
         </record>
-        <record id="x_producto_descuento_portes" model="ir.config_parameter">
-            <field name="key">x_producto_descuento_portes</field>
-            <field name="value">Descuento Portes</field>
-        </record>
     </data>
 
     <data>
