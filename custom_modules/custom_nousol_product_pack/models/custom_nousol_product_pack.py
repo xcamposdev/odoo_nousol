@@ -32,7 +32,7 @@ class custom_nousol_product_pack(models.Model):
         for line in self.pack_line_ids:        
             _logger.info('obtenemos datos')
             if(line.quantity > 0):
-		x_product_price += line.product_id.list_price * line.quantity - (line.product_id.list_price * line.quantity * (line.sale_discount / 100))
+                x_product_price += line.product_id.list_price * line.quantity - (line.product_id.list_price * line.quantity * (line.sale_discount / 100))
                 x_coste_price += line.product_id.standard_price * line.quantity
                 x_total_weight += line.product_id.weight * line.quantity
                 x_total_volumen += line.product_id.volume * line.quantity
