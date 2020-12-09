@@ -9,7 +9,7 @@
     'description': """
         - Credit Control, campos personalizados adicionales
         """,
-    'depends': ['base','account'],
+    'depends': ['base'],
     'data': [
         'views/custom_nousol_credit_control.xml',
     ],
