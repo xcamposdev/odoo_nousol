@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+ <data>    
+    <record id="view_credit_control_template_form_custom_fecha_inicio_fin" model="ir.ui.view">
+        <field name="name">view.credit_control.template.form.custom.fecha_inicio_fin</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="partner_risk_insurance.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="risk_insurance_requested" position="after">
+                <field name="x_credit_control_fecha_inicio"/>
+                <field name="x_credit_control_fecha_fin"/>
+            </field>
+           <field name="risk_insurance_grant_date" position="attributes">
+              <attribute name="string">Fecha de Solicitud</attribute>
+           </field>
+           <xpath expr="(//page/group)[last()]" position="after">
+             <group>
+                <field name="x_credit_control_observaciones"/>
+             </group>
+           </xpath>     
+        </field>
+    </record>
+  </data>
+</odoo>
