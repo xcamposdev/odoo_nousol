@@ -48,11 +48,6 @@
 	url = git@github.com:OCA/partner-contact.git
 	branch = 13.0
 
-[submodule "OCA/account-invoicing"]
-	path = OCA/account-invoicing
-	url = git@github.com:OCA/account-invoicing.git
-	branch = 12.0
-
 [submodule "OCA/account-payment"]
 	path = OCA/account-payment
 	url = git@github.com:OCA/account-payment.git
