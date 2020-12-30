@@ -19,7 +19,7 @@ class sale_discount_custom(models.Model):
     @api.onchange('partner_id')
     def onchange_partner_id(self):
         super(sale_discount_custom, self).onchange_partner_id()
-        self.crud_discount_line(self.product_descuento_comercial, self.partner_id.x_descuento_comercial)
+        #self.crud_discount_line(self.product_descuento_comercial, self.partner_id.x_descuento_comercial)
         self.crud_discount_line(self.product_descuento_pp, self.partner_id.x_descuento_pp)
 
     def crud_discount_line(self, product_id, amount_discount):
