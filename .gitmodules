@@ -62,3 +62,8 @@
 	path = OCA/server-backend
 	url = git@github.com:OCA/server-backend.git
 	branch = 13.0
+
+[submodule "OCA/sale-workflow"]
+	path = OCA/sale-workflow
+	url = git@github.com:OCA/sale-workflow.git
+	branch = 13.0
