@@ -5,7 +5,7 @@
     'author': 'Develoop Software S.A.',
     'category': 'Develoop',
     'website': 'https://www.develoop.net/',
-    'depends': ['base','sale','sale_management','product'],
+    'depends': ['base','sale','sale_management'],
     'summary': 'Descuento en venta',
     'description': """
         Descuento en venta
