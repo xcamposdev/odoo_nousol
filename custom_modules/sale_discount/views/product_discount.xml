@@ -2,10 +2,6 @@
     
     <data noupdate="1">
         <!-- definimos variables de entorno -->
-        <record id="x_producto_descuento_comercial" model="ir.config_parameter">
-            <field name="key">x_producto_descuento_comercial</field>
-            <field name="value">Descuento Comercial</field>
-        </record>
         <record id="x_producto_descuento_pp" model="ir.config_parameter">
             <field name="key">x_producto_descuento_pp</field>
             <field name="value">Descuento PP</field>

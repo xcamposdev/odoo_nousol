@@ -10,56 +10,42 @@ class sale_discount_custom(models.Model):
 
     _inherit = 'sale.order'
 
-    
-    product_descuento_comercial = fields.Many2one("product.product", store=False, default=lambda self: self.env['product.product'].search(\
-        [('name','=',self.env['ir.config_parameter'].sudo().get_param('x_producto_descuento_comercial'))], limit=1))
-    product_descuento_pp = fields.Many2one("product.product", store=False, default=lambda self: self.env['product.product'].search(\
-        [('name','=',self.env['ir.config_parameter'].sudo().get_param('x_producto_descuento_pp'))], limit=1))
+    partner_id = fields.Many2one(
+        'res.partner', string='Customer', readonly=True,
+        states={'draft': [('readonly', False)], 'sent': [('readonly', False)]},
+        required=True, change_default=True, index=True, tracking=1,
+        domain="['&','|', ('company_id', '=', False), ('company_id', '=', company_id), ('customer_rank', '>', 0)]",)
+
+    x_discount_pp = fields.Float("Desc. PP %", default=0)
+    x_discount_percent = fields.Float("Desc. %", default=0)
+
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
         super(sale_discount_custom, self).onchange_partner_id()
-        #self.crud_discount_line(self.product_descuento_comercial, self.partner_id.x_descuento_comercial)
-        self.crud_discount_line(self.product_descuento_pp, self.partner_id.x_descuento_pp)
+        self.x_discount_pp = self.partner_id.x_descuento_pp
 
-    def crud_discount_line(self, product_id, amount_discount):
-        if product_id:
-            order_line = list(line for line in self.order_line if line.product_id.id == product_id.id)
-            if not order_line and amount_discount > 0: #Add
-                self.order_line = [(0,0, {
-                    'product_id': product_id.id
-                })]
-                self.order_line[-1].product_id_change()
-                self.order_line[-1].name = self.order_line[-1].product_id.name + " " + str(amount_discount) + "%"
-            elif order_line and amount_discount > 0: #Edit
-                order_line[0].product_id_change()
-                order_line[0].name = order_line[0].product_id.name + " " + str(amount_discount) + "%"
-            elif order_line and amount_discount == 0: #Delete
-                self.order_line = [(2,order_line[0].id)]
-
-    # @api.onchange('order_line')
-    # def onchange_amount_all(self):
-    @api.depends('order_line.price_total')
+    @api.depends('order_line.price_total','x_discount_pp','x_discount_percent')
     def _amount_all(self):
+        """
+        Compute the total amounts of the SO.
+        """
         for order in self:
-            subtotal = 0
-            for line in self.order_line:
-                if (self.product_descuento_comercial and self.product_descuento_comercial.id != line.product_id.id) and \
-                    (self.product_descuento_pp and self.product_descuento_pp.id != line.product_id.id):
-                    subtotal += line.price_subtotal
-            
-            if self.product_descuento_comercial:
-                order_line = list(line for line in self.order_line if line.product_id.id == self.product_descuento_comercial.id)
-                if(order_line):
-                    discount = (subtotal * self.partner_id.x_descuento_comercial)/100
-                    order_line[0].update({'price_unit': discount * (-1)})
-                    #order_line[0].price_unit = discount * (-1)
-                    subtotal = subtotal - discount
-            if self.product_descuento_pp:
-                order_line = list(line for line in self.order_line if line.product_id.id == self.product_descuento_pp.id)
-                if order_line:
-                    discount = (subtotal * self.partner_id.x_descuento_pp)/100
-                    order_line[0].update({'price_unit': discount * (-1)})
-                    #order_line[0].price_unit = discount * (-1)
-                    subtotal = subtotal - discount
-        super(sale_discount_custom, self)._amount_all()
+            #desc_pp = (order.x_discount_pp or 0.0)/100 #if (order.x_discount_pp or 0.0) > 1 else (order.x_discount_pp or 0.0)
+            #desc_perc = (order.x_discount_percent or 0.0)/100 #if (order.x_discount_percent or 0.0) > 1 else (order.x_discount_percent or 0.0)
+            desc = (order.x_discount_pp or 0.0)/100 + (order.x_discount_percent or 0.0)/100
+            price_tax = 0
+            price_total = 0
+            price_subtotal = 0
+
+            for line in order.order_line:
+                price = line.price_unit * (1 - (line.discount or 0.0) / 100.0 - desc)
+                taxes = line.tax_id.compute_all(price, line.order_id.currency_id, line.product_uom_qty, product=line.product_id, partner=line.order_id.partner_shipping_id)
+                price_tax += sum(t.get('amount', 0.0) for t in taxes.get('taxes', []))
+                price_total += taxes['total_included']
+                price_subtotal += taxes['total_excluded']
+            order.update({
+                'amount_untaxed': price_subtotal,
+                'amount_tax': price_tax,
+                'amount_total': price_subtotal + price_tax,
+            })
