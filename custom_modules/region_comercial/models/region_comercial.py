@@ -12,18 +12,24 @@ class partner_region_comercial(models.Model):
 
     x_region_comercial = fields.Selection(selection=[
             ('andalucia_este', 'Andalucía Este'),
+            ('andalucia_occidental', 'Andalucía Occidental'),
             ('andorra', 'Andorra'),
             ('aragon', 'Aragón'),
             ('asturias_cantabria', 'Asturias y Cantabria'),
             ('balears', 'Balears'),
             ('canarias', 'Canarias'),
+            ('cantabria', 'Cantabria'),
             ('castilla leon', 'Castilla León'),
             ('castilla la mancha', 'Castilla la Mancha'),
             ('catalunya', 'Catalunya'),
             ('extremadura', 'Extremadura'),
+            ('galicia', 'Galicia'),
+            ('internacional', 'Internacional'),
             ('madrid', 'Madrid'),
+            ('mostrador', 'Mostrador'),
             ('navarra', 'Navarra y la Rioja'),
             ('pais_vasco', 'País Vasco'),
+            ('valencia_murcia', 'Valencia y Murcia'),
         ], string='Región comercial')
 
 
