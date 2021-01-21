@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<odoo>
+    <record id="account_move_form_discount_form_view" model="ir.ui.view">
+        <field name="name">account.move.form.discount.form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_untaxed']" position="before">
+                <field name="x_discount_pp" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}" />
+                <field name="x_discount_percent" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}" />
+            </xpath>
+
+            <xpath expr="//field[@name='discount']" position="replace">
+                <field name="discount_no_gobal" string="Desc.%" groups="base.group_no_one" optional="show"/>
+            </xpath>
+
+            <xpath expr="//field[@name='price_subtotal']" position="replace">
+                <field name="price_subtotal_no_global" string="Subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

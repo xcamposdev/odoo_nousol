@@ -1,0 +1,49 @@
+<odoo>
+  <data>
+    
+    <record id="view_res_partner_form_region_comercial" model="ir.ui.view">
+        <field name="name">view.res.partner.form.region.comercial</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='sales_purchases']/group[@name='container_row_2']/group[@name='sale']/field[@name='user_id']" position="after">
+                <field name="x_region_comercial" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_search_opportunity_region_comercial" model="ir.ui.view">
+        <field name="name">crm.lead.search.opportunity_region_comercial</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='source']" position="after">
+                <filter string="Región Comercial" name="x_partner_region_comercial" domain="[]" context="{'group_by':'x_partner_region_comercial'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_search_region_comercial" model="ir.ui.view">
+        <field name="name">crm_lead_search_region_comercial</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm_enterprise.crm_opportunity_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='source']" position="after">
+                <filter string="Región Comercial" name="x_partner_region_comercial" domain="[]" context="{'group_by':'x_partner_region_comercial'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_activity_report_search_region_comercial" model="ir.ui.view">
+        <field name="name">crm_activity_report_search_region_comercial</field>
+        <field name="model">crm.activity.report</field>
+        <field name="inherit_id" ref="crm.crm_activity_report_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='group_by_date_closed']" position="after">
+                <filter string="Región Comercial" name="x_region_comercial" domain="[]" context="{'group_by':'x_region_comercial'}"/>
+            </xpath>
+        </field>
+    </record>
+
+  </data>
+</odoo>

@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'sale discount custom',
+    'name': 'region comercial custom',
     'version': '1.0.0.0',
     'author': 'Develoop Software S.A.',
     'category': 'Develoop',
     'website': 'https://www.develoop.net/',
-    'depends': ['base','sale','sale_management','account'],
-    'summary': 'Descuento en venta',
+    'depends': ['base','crm','crm_enterprise'],
+    'summary': 'Region Comercial',
     'description': """
-        Descuento en venta
+        Region Comercial
         """,
     'data': [
-        'views/account_discount.xml',
-        'views/product_discount.xml',
-        'views/partner_discount.xml',
-        'views/sale_discount.xml',
+        'views/region_comercial.xml'
     ],
     'images': ['static/description/icon.png'],
     'demo': [],
