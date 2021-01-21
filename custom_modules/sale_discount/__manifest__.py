@@ -11,7 +11,7 @@
         Descuento en venta
         """,
     'data': [
-        'views/account_discount.xml',
+        #'views/account_discount.xml',
         'views/product_discount.xml',
         'views/partner_discount.xml',
         'views/sale_discount.xml',
