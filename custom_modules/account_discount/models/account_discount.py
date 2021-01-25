@@ -45,8 +45,9 @@ class account_line_discount_custom(models.Model):
 
     @api.onchange('quantity', 'x_discount_no_global', 'price_unit', 'tax_ids')
     def _onchange_price_subtotal(self):
-        self.discount = self.x_discount_no_global
-        self.x_price_subtotal_no_global = self._get_price_total_and_subtotal()['price_subtotal']
+        for record in self:
+            record.discount = record.x_discount_no_global
+            record.x_price_subtotal_no_global = record._get_price_total_and_subtotal()['price_subtotal']
 
-        self.discount = (self.discount or 0.0) + (self.move_id.x_discount_pp or 0.0) + (self.move_id.x_discount_percent or 0.0)
-        super(account_line_discount_custom, self)._onchange_price_subtotal()
+            record.discount = (record.discount or 0.0) + (record.move_id.x_discount_pp or 0.0) + (record.move_id.x_discount_percent or 0.0)
+            super(account_line_discount_custom, record)._onchange_price_subtotal()
