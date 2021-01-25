@@ -3,8 +3,11 @@
 import logging
 from odoo import api, fields, models, exceptions, _
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.addons.account.models.account_move import AccountMoveLine
 
 _logger = logging.getLogger(__name__)
+
+INTEGRITY_HASH_LINE_FIELDS = ('debit', 'credit', 'account_id', 'partner_id')
 
 class account_discount_custom(models.Model):
 
@@ -37,16 +40,13 @@ class account_line_discount_custom(models.Model):
     
     _inherit = 'account.move.line'
 
-    discount_no_gobal = fields.Float(string='Discount (%)', digits='Discount', default=0.0)
-    price_subtotal_no_global = fields.Monetary(string='Subtotal', store=True, readonly=True, currency_field='always_set_currency_id')
+    x_discount_no_global = fields.Float(string='Discount (%)', digits='Discount', default=0.0)
+    x_price_subtotal_no_global = fields.Monetary(string='Subtotal', store=True, readonly=True, currency_field='always_set_currency_id')
 
-    # @api.onchange('discount_no_gobal', 'price_subtotal_no_global', 'move_id.x_discount_pp', 'move_id.x_discount_percent')
-    @api.onchange('quantity', 'discount_no_gobal', 'price_unit', 'tax_ids')
+    @api.onchange('quantity', 'x_discount_no_global', 'price_unit', 'tax_ids')
     def _onchange_price_subtotal(self):
-        
-        self.discount = self.discount_no_gobal
-        data_subtotal = self._get_price_total_and_subtotal()
-        self.price_subtotal_no_global = data_subtotal['price_subtotal']
-        self.discount = (self.discount or 0.0) + (self.move_id.x_discount_pp or 0.0) + (self.move_id.x_discount_percent or 0.0)
+        self.discount = self.x_discount_no_global
+        self.x_price_subtotal_no_global = self._get_price_total_and_subtotal()['price_subtotal']
 
+        self.discount = (self.discount or 0.0) + (self.move_id.x_discount_pp or 0.0) + (self.move_id.x_discount_percent or 0.0)
         super(account_line_discount_custom, self)._onchange_price_subtotal()
