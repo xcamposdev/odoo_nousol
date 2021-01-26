@@ -11,6 +11,7 @@
         Personalización Compras
         """,
     'data': [
+        'views/purchase_discount.xml',
     ],
     'images': ['static/description/icon.png'],
     'demo': [],
