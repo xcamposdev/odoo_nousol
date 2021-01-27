@@ -40,3 +40,20 @@ class purchase_custom(models.Model):
                 'amount_tax': price_tax,
                 'amount_total': price_subtotal + price_tax,
             })
+
+    def action_view_invoice(self):
+        data = super(purchase_custom, self).action_view_invoice()
+        data['context']['default_x_discount_pp'] = self.x_discount_pp
+        data['context']['default_x_discount_percent'] = self.x_discount_percent
+        return data
+
+
+class purchase_order_line_discount_custom(models.Model):
+
+    _inherit = 'purchase.order.line'
+
+    def _prepare_account_move_line(self, move):
+        vals = super(purchase_order_line_discount_custom, self)._prepare_account_move_line(move)
+        vals["discount"] = self.discount + (self.order_id.x_discount_pp or 0.0) + (self.order_id.x_discount_percent or 0.0)
+        vals["x_discount_no_global"] = self.discount
+        return vals

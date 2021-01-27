@@ -5,7 +5,7 @@
     'author': 'Develoop Software S.A.',
     'category': 'Develoop',
     'website': 'https://www.develoop.net/',
-    'depends': ['base','purchase'],
+    'depends': ['base','purchase','purchase_discount'],
     'summary': 'Personalización Compras',
     'description': """
         Personalización Compras
