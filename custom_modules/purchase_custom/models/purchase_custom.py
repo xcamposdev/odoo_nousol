@@ -57,3 +57,17 @@ class purchase_order_line_discount_custom(models.Model):
         vals["discount"] = self.discount + (self.order_id.x_discount_pp or 0.0) + (self.order_id.x_discount_percent or 0.0)
         vals["x_discount_no_global"] = self.discount
         return vals
+    
+    def _get_product_purchase_description(self, product_lang):
+        self.ensure_one()
+        name = product_lang.display_name
+        if self.product_id.description_sale:
+            name = self.product_id.description_sale
+
+        return name
+
+        # name = product_lang.display_name
+        # if product_lang.description_purchase:
+        #     name = product_lang.description_purchase
+
+        # return name
