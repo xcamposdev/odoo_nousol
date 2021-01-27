@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+
+<odoo>
+    <record id="purchase_order_general_discount_form_view" model="ir.ui.view">
+        <field name="name">purchase.order.general.discount.form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_untaxed']" position="before">
+                <field name="x_discount_pp" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}" />
+                <field name="x_discount_percent" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}" />
+            </xpath>
+
+        </field>
+    </record>
+</odoo>
