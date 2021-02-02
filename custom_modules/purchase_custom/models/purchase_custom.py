@@ -54,8 +54,7 @@ class purchase_order_line_discount_custom(models.Model):
 
     def _prepare_account_move_line(self, move):
         vals = super(purchase_order_line_discount_custom, self)._prepare_account_move_line(move)
-        vals["discount"] = self.discount + (self.order_id.x_discount_pp or 0.0) + (self.order_id.x_discount_percent or 0.0)
-        vals["x_discount_no_global"] = self.discount
+        vals["discount"] = self.discount
         return vals
     
     def _get_product_purchase_description(self, product_lang):

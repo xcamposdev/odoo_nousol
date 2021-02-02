@@ -235,12 +235,10 @@ class account_line_discount_custom(models.Model):
 
     x_price_subtotal_ui = fields.Monetary(string='Subtotal', store=True, readonly=True, currency_field='always_set_currency_id')
 
-    #@api.onchange('quantity', 'price_unit', 'tax_ids')
+    # @api.onchange('quantity', 'price_unit', 'tax_ids')
     # def _onchange_price_subtotal(self):
     #     for record in self:
-    #         record.x_price_subtotal_no_global = record._get_price_total_and_subtotal()['price_subtotal']
-
-    #         record.discount = (record.discount or 0.0) + (record.move_id.x_discount_pp or 0.0) + (record.move_id.x_discount_percent or 0.0)
+    #         record.x_price_subtotal_ui = record._get_price_total_and_subtotal()['price_subtotal']
     #         super(account_line_discount_custom, record)._onchange_price_subtotal()
 
 
@@ -272,17 +270,24 @@ class account_line_discount_custom(models.Model):
             res['x_price_subtotal_ui'] = taxes_res['total_excluded']
             res['price_total'] = taxes_res['total_included']
 
-            if self.exclude_from_invoice_tab == False:
-                desc = (self.move_id.x_discount_pp or 0.0)/100 + (self.move_id.x_discount_percent or 0.0)/100
-                if(desc > 0):
-                    subtotal2 = res['price_subtotal'] * (1-desc)
-                    taxes_res2 = taxes._origin.compute_all(subtotal2,
-                        quantity=quantity, currency=currency, product=product, partner=partner, is_refund=move_type in ('out_refund', 'in_refund'))
-                    res['price_subtotal'] = taxes_res2['total_excluded']
-                    res['price_total'] = taxes_res2['total_included']
-
+            #if self.exclude_from_invoice_tab == False:
         else:
             res['price_total'] = res['price_subtotal'] = res['x_price_subtotal_ui'] = subtotal
+
+        desc = (self.move_id.x_discount_pp or 0.0)/100 + (self.move_id.x_discount_percent or 0.0)/100
+        
+        # CASO DE CREACION DE FACTURAS DESDE VENTAS
+        if desc == 0 and self._context.get('active_model', False) == 'sale.order' and self._context.get('active_id', False):
+            sale = self.env['sale.order'].browse(self._context.get('active_id', 0))
+            desc = (sale.x_discount_pp or 0.0)/100 + (sale.x_discount_percent or 0.0)/100
+            
+        if(desc > 0):
+            if self.exclude_from_invoice_tab == False or taxes:
+                subtotal2 = res['price_subtotal'] * (1-desc)
+                taxes_res2 = taxes._origin.compute_all(subtotal2,
+                    quantity=quantity, currency=currency, product=product, partner=partner, is_refund=move_type in ('out_refund', 'in_refund'))
+                res['price_subtotal'] = taxes_res2['total_excluded']
+                res['price_total'] = taxes_res2['total_included']
 
         #In case of multi currency, round before it's use for computing debit credit
         if currency:
