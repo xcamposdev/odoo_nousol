@@ -33,19 +33,19 @@ class sale_discount_custom(models.Model):
         Compute the total amounts of the SO.
         """
         for order in self:
-            #desc_pp = (order.x_discount_pp or 0.0)/100 #if (order.x_discount_pp or 0.0) > 1 else (order.x_discount_pp or 0.0)
-            #desc_perc = (order.x_discount_percent or 0.0)/100 #if (order.x_discount_percent or 0.0) > 1 else (order.x_discount_percent or 0.0)
             desc = (order.x_discount_pp or 0.0)/100 + (order.x_discount_percent or 0.0)/100
             price_tax = 0
             price_total = 0
             price_subtotal = 0
-
+            
             for line in order.order_line:
-                price = line.price_unit * (1 - (line.discount or 0.0) / 100.0 - desc)
+                price = (line.price_unit * (1 - (line.discount or 0.0) / 100.0)) * (1 - desc)
                 taxes = line.tax_id.compute_all(price, line.order_id.currency_id, line.product_uom_qty, product=line.product_id, partner=line.order_id.partner_shipping_id)
+                
                 price_tax += sum(t.get('amount', 0.0) for t in taxes.get('taxes', []))
                 price_total += taxes['total_included']
                 price_subtotal += taxes['total_excluded']
+                
             order.update({
                 'amount_untaxed': price_subtotal,
                 'amount_tax': price_tax,
@@ -96,8 +96,7 @@ class sale_discount_custom(models.Model):
                     
                     ######################################
                     line_new = line._prepare_invoice_line()
-                    line_new['x_discount_no_global'] = line.discount
-                    line_new['discount'] = (line.discount or 0.0) + (order.x_discount_pp or 0.0) + (order.x_discount_percent or 0.0)
+                    line_new['discount'] = (line.discount or 0.0)
                     ######################################
 
                     invoice_vals['invoice_line_ids'].append((0, 0, line_new))
@@ -156,58 +155,6 @@ class sale_discount_custom(models.Model):
 class sale_modal_create_factura(models.TransientModel):
 
     _inherit = "sale.advance.payment.inv"
-
-    # def create_invoices(self):
-    #     sale_orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
-
-    #     if self.advance_payment_method == 'delivered':
-    #         invoice = sale_orders._create_invoices(final=self.deduct_down_payments)
-    #     else:
-    #         # Create deposit product if necessary
-    #         if not self.product_id:
-    #             vals = self._prepare_deposit_product()
-    #             self.product_id = self.env['product.product'].create(vals)
-    #             self.env['ir.config_parameter'].sudo().set_param('sale.default_deposit_product_id', self.product_id.id)
-
-    #         sale_line_obj = self.env['sale.order.line']
-    #         for order in sale_orders:
-    #             amount, name = self._get_advance_details(order)
-
-    #             if self.product_id.invoice_policy != 'order':
-    #                 raise UserError(_('The product used to invoice a down payment should have an invoice policy set to "Ordered quantities". Please update your deposit product to be able to create a deposit invoice.'))
-    #             if self.product_id.type != 'service':
-    #                 raise UserError(_("The product used to invoice a down payment should be of type 'Service'. Please use another product or update this product."))
-    #             taxes = self.product_id.taxes_id.filtered(lambda r: not order.company_id or r.company_id == order.company_id)
-    #             if order.fiscal_position_id and taxes:
-    #                 tax_ids = order.fiscal_position_id.map_tax(taxes, self.product_id, order.partner_shipping_id).ids
-    #             else:
-    #                 tax_ids = taxes.ids
-    #             context = {'lang': order.partner_id.lang}
-    #             analytic_tag_ids = []
-    #             for line in order.order_line:
-    #                 analytic_tag_ids = [(4, analytic_tag.id, None) for analytic_tag in line.analytic_tag_ids]
-
-    #             so_line_values = self._prepare_so_line(order, analytic_tag_ids, tax_ids, amount)
-    #             so_line = sale_line_obj.create(so_line_values)
-    #             del context
-    #             invoice = self._create_invoice(order, so_line, amount)
-
-    #     for account in invoice:
-    #         if account.invoice_filter_type_domain == 'sale':
-    #             sale = self.env['sale.order'].search([('name','=', account.invoice_origin)])
-    #             account.write({
-    #                 'x_discount_pp': sale.x_discount_pp,
-    #                 'x_discount_percent': sale.x_discount_percent
-    #             })
-    #             for line in account.invoice_line_ids:
-    #                 line.x_discount_no_global = line.sale_line_ids.discount
-    #                 line.discount = (sale.x_discount_pp or 0.0) + (sale.x_discount_percent or 0.0) + (line.sale_line_ids.discount or 0.0)
-    #                 line._onchange_price_subtotal()
-
-    #     if self._context.get('open_invoices', False):
-    #         return sale_orders.action_view_invoice()
-    #     return {'type': 'ir.actions.act_window_close'}
-
 
     def _prepare_invoice_values(self, order, name, amount, so_line):
         line = self.env['sale.order.line'].search([('id','=',so_line.id)])
