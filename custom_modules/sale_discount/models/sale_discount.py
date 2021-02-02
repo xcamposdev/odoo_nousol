@@ -33,19 +33,19 @@ class sale_discount_custom(models.Model):
         Compute the total amounts of the SO.
         """
         for order in self:
-            #desc_pp = (order.x_discount_pp or 0.0)/100 #if (order.x_discount_pp or 0.0) > 1 else (order.x_discount_pp or 0.0)
-            #desc_perc = (order.x_discount_percent or 0.0)/100 #if (order.x_discount_percent or 0.0) > 1 else (order.x_discount_percent or 0.0)
             desc = (order.x_discount_pp or 0.0)/100 + (order.x_discount_percent or 0.0)/100
             price_tax = 0
             price_total = 0
             price_subtotal = 0
-
+            
             for line in order.order_line:
-                price = line.price_unit * (1 - (line.discount or 0.0) / 100.0 - desc)
+                price = (line.price_unit * (1 - (line.discount or 0.0) / 100.0)) * (1 - desc)
                 taxes = line.tax_id.compute_all(price, line.order_id.currency_id, line.product_uom_qty, product=line.product_id, partner=line.order_id.partner_shipping_id)
+                
                 price_tax += sum(t.get('amount', 0.0) for t in taxes.get('taxes', []))
                 price_total += taxes['total_included']
                 price_subtotal += taxes['total_excluded']
+                
             order.update({
                 'amount_untaxed': price_subtotal,
                 'amount_tax': price_tax,

@@ -30,7 +30,7 @@ class purchase_custom(models.Model):
             desc = (order.x_discount_pp or 0.0)/100 + (order.x_discount_percent or 0.0)/100
             price_tax = price_total = price_subtotal = 0
             for line in order.order_line:
-                price = line.price_unit * (1 - (line.discount or 0.0) / 100.0 - desc)
+                price = (line.price_unit * (1 - (line.discount or 0.0)) * 100.0)
                 taxes = line.taxes_id.compute_all(price, line.order_id.currency_id, line.product_uom_qty, product=line.product_id, partner=line.order_id.partner_id)
                 price_tax += sum(t.get('amount', 0.0) for t in taxes.get('taxes', []))
                 price_total += taxes['total_included']
