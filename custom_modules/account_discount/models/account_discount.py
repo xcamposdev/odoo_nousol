@@ -285,7 +285,7 @@ class account_line_discount_custom(models.Model):
             if self.exclude_from_invoice_tab == False or taxes:
                 subtotal2 = res['price_subtotal'] * (1-desc)
                 taxes_res2 = taxes._origin.compute_all(subtotal2,
-                    quantity=quantity, currency=currency, product=product, partner=partner, is_refund=move_type in ('out_refund', 'in_refund'))
+                    quantity=1, currency=currency, product=product, partner=partner, is_refund=move_type in ('out_refund', 'in_refund'))
                 res['price_subtotal'] = taxes_res2['total_excluded']
                 res['price_total'] = taxes_res2['total_included']
 
