@@ -18,11 +18,12 @@ class stock_picking_custom(models.Model):
     _inherit = 'stock.picking'
 
     x_carrier_tracking_ref = fields.Selection([
-        ('opcion1', "Opcion 1"),
-        ('opcion2', "Opcion 2"),
-        ('opcion3', "Opcion 3"),
-        ('opcion4', "Opcion 4"),
-        ('opcion5', "Opcion 5"),
+        ('opcion1', "Pendiente de recibir RMA cliente"),
+        ('opcion2', "Pendiente de recibir material de cliente"),
+        ('opcion3', "Enviado a Fabricante"),
+        ('opcion4', "Pendiente de revisar/testear"),
+        ('opcion5', "Testeado"),
+        ('opcion5', "Reparado / Devuelto"),
     ], default='', string="Referencia de seguimiento")
 
     @api.onchange('x_carrier_tracking_ref')
