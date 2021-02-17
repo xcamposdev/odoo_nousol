@@ -23,7 +23,7 @@ class stock_picking_custom(models.Model):
         ('opcion3', "Enviado a Fabricante"),
         ('opcion4', "Pendiente de revisar/testear"),
         ('opcion5', "Testeado"),
-        ('opcion5', "Reparado / Devuelto"),
+        ('opcion6', "Reparado / Devuelto"),
     ], default='', string="Referencia de seguimiento")
 
     @api.onchange('x_carrier_tracking_ref')
