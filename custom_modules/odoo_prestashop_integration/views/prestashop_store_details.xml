@@ -1,0 +1,95 @@
+<odoo>
+    <data>
+
+        <record id="view_prestashop_store_details" model="ir.ui.view">
+            <field name="name">prestashop store Details</field>
+            <field name="model">prestashop.store.details</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="prestashop Store Details">
+                    <field name="name"/>
+                    <field name="prestashop_api_key"/>
+                    <field name="prestashop_api_url"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_form_prestashop_store_details" model="ir.ui.view">
+            <field name="name">prestashop Store Details</field>
+            <field name="model">prestashop.store.details</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="prestashop Store Details">
+                    <header>
+                        <button type="object" name="import_products_from_prestashop"
+                                string="Import Products" class="oe_highlight"/>
+
+                        <button type="object" name="import_categories_from_prestashop"
+                                string="Import Categories" class="oe_highlight"/>
+
+                        <button type="object" name="import_order_from_prestashop"
+                                string="Import Orders" class="oe_highlight"/>
+                        <button type="object" name="import_product_attribute_from_prestashop"
+                                string="Import Product Attribute" class="oe_highlight"/>
+
+                        <button type="object" name="import_product_stock_from_prestashop"
+                                string="Import Product Stock" class="oe_highlight"/>
+
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button type="object" name="action_view_prestashop_categories" class="oe_stat_button"
+                                    icon="fa-book" string="Product Category">
+                            </button>
+                            <button type="object" name="action_view_prestashop_product" class="oe_stat_button"
+                                    icon="fa-cubes" string="Products">
+                            </button>
+                            <button type="object" name="action_view_prestashop_product_detail" class="oe_stat_button"
+                                    icon="fa-cubes" string="Products Variant">
+                            </button>
+                            <button type="object" name="action_view_prestashop_customers" class="oe_stat_button"
+                                    icon="fa-user" string="Customer">
+                            </button>
+                            <button type="object" name="action_view_prestashop_orders" class="oe_stat_button"
+                                    icon="fa-cart-plus" string="Orders">
+                            </button>
+                            <button type="object" name="action_view_prestashop_message_detail" class="oe_stat_button"
+                                    icon="fa-book" string="Messages">
+                            </button>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="prestashop_api_key" required="1"/>
+                                <field name="prestashop_api_url" widget="url" required="1"/>
+                                <field name="warehouse_id" required="1"/>
+                                <field name="start_range" required="1"/>
+                                <field name="end_range" required="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="action_prestashop_store_details" model="ir.actions.act_window">
+            <field name="name">prestashop Store Details</field>
+            <field name="res_model">prestashop.store.details</field>
+            <field name='view_mode'>tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a prestashop Store Details.
+                </p>
+            </field>
+        </record>
+
+        <menuitem name="prestashop Integration" id="prestashop_integration"
+                  parent="stock.menu_stock_config_settings" sequence="5"/>
+        <menuitem name="prestashop Store Details" id="menu_prestashop_store_details"
+                  parent="prestashop_integration" action="action_prestashop_store_details"
+                  sequence="3"/>
+
+
+    </data>
+</odoo>
+
