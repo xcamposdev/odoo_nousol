@@ -26,23 +26,23 @@ class ProductCategory(models.Model):
                 categories = response_data.get('categories')
                 for category in categories:
                     categ_id = category.get('id')
-                    if categ_id:
+                    if categ_id and categ_id > 1:
                         api_operation = "http://%s@%s/api/categories/?output_format=JSON&resource=categories&filter[id]=[%s]&display=full" % (
                         prestashop_store_id and prestashop_store_id.prestashop_api_key,
                         prestashop_store_id and prestashop_store_id.prestashop_api_url,categ_id)
 
-                        response_status, response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(
-                            api_operation)
+                        response_status, response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(api_operation)
 
                         if response_status:
                             for category in response_data.get('categories'):
-                                category_id = self.env['product.category'].search(
-                                    [('prestashop_category_id', '=', category.get('id'))], limit=1)
-                                parent_id_res = category.get('id_parent')
+                                category_id = self.env['product.category'].search([('prestashop_category_id', '=', category.get('id'))], limit=1)
+                                parent_id_res = category.get('id_parent') if int(category.get('id_parent')) > 1 else False
+                                category_name = prestashop_store_id.get_value_spanish(category.get('name'))
+                                category_rewrite = prestashop_store_id.get_value_spanish(category.get('link_rewrite'))
                                 if not category_id:
                                     vals = {
-                                        'name': category.get('name'),
-                                        'prestashop_category_url': category.get('link_rewrite'),
+                                        'name': category_name,
+                                        'prestashop_category_url': category_rewrite,
                                         'prestashop_parent_category_id': parent_id_res,
                                         'property_cost_method': 'standard',
                                         'property_valuation': 'manual_periodic',
@@ -50,12 +50,11 @@ class ProductCategory(models.Model):
                                     }
                                     category_id = self.env['product.category'].create(vals)
                                     _logger.info("Product Category Created : {0}".format(category_id.name))
-                                    response_data = response_data
                                     process_message = "Product Category Created : {0}".format(category_id.name)
                                 else:
                                     vals = {
-                                        'name': category.get('name'),
-                                        'prestashop_category_url': category.get('link_rewrite'),
+                                        'name': category_name,
+                                        'prestashop_category_url': category_rewrite,
                                         'prestashop_parent_category_id': parent_id_res,
                                         'property_cost_method': 'standard',
                                         'property_valuation': 'manual_periodic',
@@ -65,18 +64,13 @@ class ProductCategory(models.Model):
                                     _logger.info("Product Category Updated : {0}".format(category_id.name))
                                     process_message = "Product Category Updated : {0}".format(category_id.name)
                                 prestashop_store_id.create_prestashop_operation_detail('product_category', 'import', req_data,
-                                                                            response_data, category_operation_id,
-                                                                            False, process_message)
+                                                                            response_data, category_operation_id, False, process_message)
                                 self._cr.commit()
                         else:
-                            _logger.info(
-                                "Getting an Error In Import Product Category Response {}".format(response_data))
+                            _logger.info("Getting an Error In Import Product Category Response {}".format(response_data))
                             response_data = response_data.content
-                            process_message = "Getting an Error In Import Product Category Response".format(
-                                response_data)
-                            prestashop_store_id.create_prestashop_operation_detail('product_category', 'import', req_data,
-                                                                    response_data, category_operation_id,
-                                                                    True, process_message)
+                            process_message = "Getting an Error In Import Product Category Response".format(response_data)
+                            prestashop_store_id.create_prestashop_operation_detail('product_category', 'import', req_data, response_data, category_operation_id, True, process_message)
 
                 category_ids = self.env['product.category'].search([('prestashop_category_id', '!=', False),('prestashop_parent_category_id','!=',False)])
                 if category_ids:
@@ -84,8 +78,7 @@ class ProductCategory(models.Model):
                         parent_id = self.env['product.category'].search([('prestashop_category_id', '=', c_id.prestashop_parent_category_id)], limit=1)
                         c_id.parent_id = parent_id and parent_id.id
 
-                category_operation_id and category_operation_id.write(
-                    {'prestashop_message': category_process_message})
+                category_operation_id and category_operation_id.write({'prestashop_message': category_process_message})
                 _logger.info("Import Product Category Process Completed ")
             else :
                 _logger.info("Getting an Error In Import Product Category Response {}".format(response_data))

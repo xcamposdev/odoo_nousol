@@ -20,41 +20,20 @@
             <field name="arch" type="xml">
                 <form string="prestashop Store Details">
                     <header>
-                        <button type="object" name="import_products_from_prestashop"
-                                string="Import Products" class="oe_highlight"/>
-
-                        <button type="object" name="import_categories_from_prestashop"
-                                string="Import Categories" class="oe_highlight"/>
-
-                        <button type="object" name="import_order_from_prestashop"
-                                string="Import Orders" class="oe_highlight"/>
-                        <button type="object" name="import_product_attribute_from_prestashop"
-                                string="Import Product Attribute" class="oe_highlight"/>
-
-                        <button type="object" name="import_product_stock_from_prestashop"
-                                string="Import Product Stock" class="oe_highlight"/>
-
+                        <button type="object" name="import_categories_from_prestashop" string="Importar Categorías" class="oe_highlight"/>
+                        <button type="object" name="import_products_from_prestashop" string="Importar Productos" class="oe_highlight"/>
+                        <button type="object" name="import_order_from_prestashop" string="Importar Ordenes" class="oe_highlight"/>
+                        <button type="object" name="import_product_attribute_from_prestashop" string="Importar Attributo del Producto" class="oe_highlight"/>
+                        <button type="object" name="import_product_stock_from_prestashop" string="Importar Stock del Producto" class="oe_highlight"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
-                            <button type="object" name="action_view_prestashop_categories" class="oe_stat_button"
-                                    icon="fa-book" string="Product Category">
-                            </button>
-                            <button type="object" name="action_view_prestashop_product" class="oe_stat_button"
-                                    icon="fa-cubes" string="Products">
-                            </button>
-                            <button type="object" name="action_view_prestashop_product_detail" class="oe_stat_button"
-                                    icon="fa-cubes" string="Products Variant">
-                            </button>
-                            <button type="object" name="action_view_prestashop_customers" class="oe_stat_button"
-                                    icon="fa-user" string="Customer">
-                            </button>
-                            <button type="object" name="action_view_prestashop_orders" class="oe_stat_button"
-                                    icon="fa-cart-plus" string="Orders">
-                            </button>
-                            <button type="object" name="action_view_prestashop_message_detail" class="oe_stat_button"
-                                    icon="fa-book" string="Messages">
-                            </button>
+                            <button type="object" name="action_view_prestashop_categories" class="oe_stat_button" icon="fa-book" string="Categorías de productos"/>
+                            <button type="object" name="action_view_prestashop_product" class="oe_stat_button" icon="fa-cubes" string="Productos"/>
+                            <button type="object" name="action_view_prestashop_product_detail" class="oe_stat_button" icon="fa-cubes" string="Variante de productos"/>
+                            <button type="object" name="action_view_prestashop_customers" class="oe_stat_button" icon="fa-user" string="Clientes"/>
+                            <button type="object" name="action_view_prestashop_orders" class="oe_stat_button" icon="fa-cart-plus" string="Ordenes"/>
+                            <button type="object" name="action_view_prestashop_message_detail" class="oe_stat_button" icon="fa-book" string="Mensajes"/>
                         </div>
                         <group>
                             <group>
@@ -83,11 +62,12 @@
             </field>
         </record>
 
-        <menuitem name="prestashop Integration" id="prestashop_integration"
-                  parent="stock.menu_stock_config_settings" sequence="5"/>
+        <menuitem name="Prestashop" id="prestashop_integration"
+            web_icon="odoo_prestashop_integration,static/description/icon.png"
+            sequence="4" />
         <menuitem name="prestashop Store Details" id="menu_prestashop_store_details"
                   parent="prestashop_integration" action="action_prestashop_store_details"
-                  sequence="3"/>
+                  sequence="1"/>
 
 
     </data>

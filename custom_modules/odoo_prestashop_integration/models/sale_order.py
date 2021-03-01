@@ -65,16 +65,14 @@ class SaleOrder(models.Model):
         order_process_message = "Process Completed Successfully!"
         order_operation_id = self.env['prestashop.operation']
         if not order_operation_id:
-            order_operation_id = prestashop_store_id.create_prestashop_operation('order', 'import', prestashop_store_id,
-                                                                                 'Processing...')
+            order_operation_id = prestashop_store_id.create_prestashop_operation('order', 'import', prestashop_store_id, 'Processing...')
         self._cr.commit()
         try:
             order_api_operation = "http://%s@%s/api/orders/?output_format=JSON&resource=orders&filter[id]=[%s,%s]&display=full" % (
                 prestashop_store_id and prestashop_store_id.prestashop_api_key,
                 prestashop_store_id and prestashop_store_id.prestashop_api_url, prestashop_store_id.start_range,
                 prestashop_store_id.end_range)
-            order_response_status, order_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(
-                order_api_operation)
+            order_response_status, order_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(order_api_operation)
 
             _logger.info("prestashop Get Order Response : {0}".format(order_response_data))
             orders = order_response_data and order_response_data.get('orders')
@@ -88,8 +86,7 @@ class SaleOrder(models.Model):
                     phone = ""
                     city = ""
                     postcode = ""
-                    order_existing_id = self.env['sale.order'].search(
-                        [('prestashop_order_id', '=', o_id)], limit=1)
+                    order_existing_id = self.env['sale.order'].search([('prestashop_order_id', '=', o_id)], limit=1)
                     if not order_existing_id:
                         reference = order.get('reference')
                         date_add = order.get("date_add")
@@ -99,8 +96,7 @@ class SaleOrder(models.Model):
                         address_api_operation = "http://%s@%s/api/addresses/?output_format=JSON&resource=addresses&filter[id]=[%s]&display=full" % (
                             prestashop_store_id and prestashop_store_id.prestashop_api_key,
                             prestashop_store_id and prestashop_store_id.prestashop_api_url, address_value)
-                        address_response_status, address_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(
-                            address_api_operation)
+                        address_response_status, address_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(address_api_operation)
                         if address_response_data:
                             address_preastashop_response_data = address_response_data.get('addresses')
                             for address_data in address_preastashop_response_data:
@@ -114,21 +110,17 @@ class SaleOrder(models.Model):
                                 country_api_operation = "http://%s@%s/api/countries/?output_format=JSON&resource=countries&filter[id]=[%s]&display=full" % (
                                     prestashop_store_id and prestashop_store_id.prestashop_api_key,
                                     prestashop_store_id and prestashop_store_id.prestashop_api_url, id_country)
-                                country_response_status, country_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(
-                                    country_api_operation)
+                                country_response_status, country_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(country_api_operation)
                                 if country_response_status:
                                     country_list = country_response_data.get('countries')
                                     for country_dict in country_list:
                                         country_code = country_dict.get('iso_code')
-                                        country_id = country_id.search(
-                                            [('code', '=', country_code)],
-                                            limit=1)
+                                        country_id = country_id.search([('code', '=', country_code)],limit=1)
                                 state_api_operation = "http://%s@%s/api/states/?output_format=JSON&resource=states&filter[id]=[%s]&display=full" % (
                                     prestashop_store_id and prestashop_store_id.prestashop_api_key,
                                     prestashop_store_id and prestashop_store_id.prestashop_api_url, id_state)
-                                state_response_status, state_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(
-                                    state_api_operation)
-                                if state_response_status:
+                                state_response_status, state_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(state_api_operation)
+                                if state_response_status and len(state_response_data) > 0:
                                     state_list = state_response_data.get('states')
                                     for state_dict in state_list:
                                         state_code = state_dict.get('iso_code')
@@ -141,9 +133,8 @@ class SaleOrder(models.Model):
                             customer_api_operation = "http://%s@%s/api/customers/?output_format=JSON&resource=customers&filter[id]=[%s]&display=full" % (
                                 prestashop_store_id and prestashop_store_id.prestashop_api_key,
                                 prestashop_store_id and prestashop_store_id.prestashop_api_url, id_customer)
-                            customer_response_status, customer_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(
-                                customer_api_operation)
-                            if customer_response_status:
+                            customer_response_status, customer_response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(customer_api_operation)
+                            if customer_response_status and len(customer_response_data) > 0:
                                 customer_data = customer_response_data.get('customers')
                                 for customer_dict in customer_data:
                                     lastname = customer_dict.get('lastname')
@@ -166,11 +157,7 @@ class SaleOrder(models.Model):
                                     res_partner_id.prestashop_store_id = prestashop_store_id and prestashop_store_id.id
                                     _logger.info("Customer Created : {0}".format(res_partner_id.name))
                                     customer_message = "%s Customer Created" % (res_partner_id.name)
-                                    self.prestashop_store_id.create_prestashop_operation_detail('order', 'import',
-                                                                                                customer_api_operation,
-                                                                                                customer_response_data,
-                                                                                                order_operation_id,
-                                                                                                False, customer_message)
+                                    self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', customer_api_operation, customer_response_data, order_operation_id, False, customer_message)
 
                         if res_partner_id:
                             vals = {
@@ -190,26 +177,17 @@ class SaleOrder(models.Model):
                                          'serviceCode': '',
                                          })
                             order_vals = self.create_sales_order_from_prestashop(vals)
-                            order_vals.update({'prestashop_order_id': o_id, 'prestashop_reference': reference,
-                                               'prestashop_order_imported': True})
+                            order_vals.update({'prestashop_order_id': o_id, 'prestashop_reference': reference, 'prestashop_order_imported': True})
 
                             try:
                                 order_id = self.env['sale.order'].create(order_vals)
                                 order_id.prestashop_store_id = prestashop_store_id and prestashop_store_id.id
                                 order_message = "{} : Order Created".format(order_id.name)
-                                self.prestashop_store_id.create_prestashop_operation_detail('order', 'import',
-                                                                                            order_api_operation,
-                                                                                            order_response_data,
-                                                                                            order_operation_id,
-                                                                                            False,
-                                                                                            order_message)
+                                self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', order_api_operation, order_response_data, order_operation_id, False, order_message)
 
                             except Exception as e:
                                 process_message = "Getting an Error In Create Order procecss {}".format(e)
-                                self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', '', '',
-                                                                                            order_operation_id,
-                                                                                            True,
-                                                                                            process_message)
+                                self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', '', '', order_operation_id, True, process_message)
 
                         # Order Line Creation Part
                         order_rows = order.get('associations') and order.get('associations').get('order_rows')
@@ -222,15 +200,11 @@ class SaleOrder(models.Model):
                                 product_price = order_row.get('product_price')
                                 product_quantity = order_row.get('product_quantity')
                                 product_name = order_row.get('product_name')
-                                if product_attribute_id:
-                                    product_detail_id = self.env['prestashop.product.detail'].search(
-                                        [('product_combination_id', '=', product_attribute_id),
-                                         ('prestashop_store_id', '=', prestashop_store_id.id)], limit=1)
+                                if product_attribute_id and product_attribute_id != '0':
+                                    product_detail_id = self.env['prestashop.product.detail'].search([('product_combination_id', '=', product_attribute_id), ('prestashop_store_id', '=', prestashop_store_id.id)], limit=1)
                                     product_id = product_detail_id and product_detail_id.product_id
                                 else:
-                                    product_detail_id = self.env['prestashop.product.detail'].search(
-                                        [('prestashop_product_id', '=', p_id),
-                                         ('prestashop_store_id', '=', prestashop_store_id.id)], limit=1)
+                                    product_detail_id = self.env['prestashop.product.detail'].search([('prestashop_product_id', '=', p_id), ('prestashop_store_id', '=', prestashop_store_id.id)], limit=1)
                                     product_id = product_detail_id and product_detail_id.product_id
 
                                 if product_id:
@@ -241,47 +215,28 @@ class SaleOrder(models.Model):
                                                        'company_id': self.env.user.company_id.id}
                                     order_line = self.create_sale_order_line_from_prestashop(order_line_vals)
                                     order_line = self.env['sale.order.line'].create(order_line)
-                                    _logger.info("Sale Order line Created : {}".format(
-                                        order_line and order_line.product_id and order_line.product_id.name))
-                                    response_msg = "Sale Order line Created For Order  : {0}".format(
-                                        order_id.name)
-                                    self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', '',
-                                                                                                '',
-                                                                                                order_operation_id,
-                                                                                                False, response_msg)
+                                    _logger.info("Sale Order line Created : {}".format(order_line and order_line.product_id and order_line.product_id.name))
+                                    response_msg = "Sale Order line Created For Order  : {0}".format(order_id.name)
+                                    self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', '', '', order_operation_id, False, response_msg)
                                 else:
-                                    response_msg = "Product Is Not Available In Odoo  : {0} : {1} : {2}".format(
-                                        product_name, o_id, reference)
-                                    self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', '',
-                                                                                                '',
-                                                                                                order_operation_id,
-                                                                                                True, response_msg)
+                                    response_msg = "Product Is Not Available In Odoo  : {0} : {1} : {2}".format(product_name, o_id, reference)
+                                    self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', '', '', order_operation_id, True, response_msg)
 
                     else:
-                        _logger.info("%s : %s : Order Already Exist in Odoo" % (
-                        order_existing_id and order_existing_id.name, o_id))
-                        order_message = "%s : %s : Order Already Exist in Odoo" % (
-                        order_existing_id and order_existing_id.name, o_id)
-                        self.prestashop_store_id.create_prestashop_operation_detail('order', 'import',
-                                                                                    order_api_operation,
-                                                                                    order, order_operation_id,
-                                                                                    True, order_message)
+                        _logger.info("%s : %s : Order Already Exist in Odoo" % (order_existing_id and order_existing_id.name, o_id))
+                        order_message = "%s : %s : Order Already Exist in Odoo" % (order_existing_id and order_existing_id.name, o_id)
+                        self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', order_api_operation, order, order_operation_id, True, order_message)
 
                     self._cr.commit()
-                    order_operation_id and order_operation_id.write(
-                        {'prestashop_message': order_process_message})
+                    order_operation_id and order_operation_id.write({'prestashop_message': order_process_message})
                     _logger.info("Import Product Process Completed ")
                 except Exception as e:
                     _logger.info("Getting an Error In Import Order Response {}".format(e))
                     process_message = "Getting An Error In Import Order Response".format(e)
-                    self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', '', '',
-                                                                                order_operation_id, True,
-                                                                                process_message)
+                    self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', '', '', order_operation_id, True, process_message)
         except Exception as e:
             _logger.info("Getting an Error In Import Order Response {}".format(e))
             process_message = "Getting an Error In Import Order Response {}".format(e)
-            self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', order_response_data,
-                                                                        process_message, order_operation_id,
-                                                                        True, process_message)
+            self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', order_response_data, process_message, order_operation_id, True, process_message)
         order_operation_id and order_operation_id.write({'prestashop_message': order_process_message})
         self._cr.commit()
