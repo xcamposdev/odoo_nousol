@@ -7,3 +7,5 @@ from . import sale_order
 from . import product_attribute
 from . import prestashop_product_detail
 from . import stock_inventory
+from . import export_category_prestashop
+from . import export_product_prestashop

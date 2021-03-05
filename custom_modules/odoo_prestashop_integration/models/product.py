@@ -121,8 +121,6 @@ class ProductTemplate(models.Model):
                                     prestashop_store_id.create_prestashop_operation_detail('product', 'import', api_operation, product_response_data, product_operation_id, False, process_message)
                                     continue
                                 template_title = prestashop_store_id.get_value_spanish(template_title)
-                                if product_id == '167':
-                                    test = ""
                                 if not product_id:
                                     product_tmpl_id = self.create({
                                         'name': template_title,

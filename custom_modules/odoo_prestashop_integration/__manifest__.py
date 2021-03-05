@@ -16,7 +16,8 @@
         'views/product_attribute.xml',
         'views/sale_order.xml',
         'data/ir_cron.xml',
-        
+        #'views/export_category_prestashop.xml',
+        #'views/export_product_prestashop.xml'
     ],
     'author': 'Vraja Technologies',
     'images': ['static/description/prestashop.png'],

@@ -26,7 +26,7 @@ class ProductCategory(models.Model):
                 categories = response_data.get('categories')
                 for category in categories:
                     categ_id = category.get('id')
-                    if categ_id and categ_id > 1:
+                    if categ_id and categ_id > 2:
                         api_operation = "http://%s@%s/api/categories/?output_format=JSON&resource=categories&filter[id]=[%s]&display=full" % (
                         prestashop_store_id and prestashop_store_id.prestashop_api_key,
                         prestashop_store_id and prestashop_store_id.prestashop_api_url,categ_id)
@@ -36,17 +36,20 @@ class ProductCategory(models.Model):
                         if response_status:
                             for category in response_data.get('categories'):
                                 category_id = self.env['product.category'].search([('prestashop_category_id', '=', category.get('id'))], limit=1)
-                                parent_id_res = category.get('id_parent') if int(category.get('id_parent')) > 1 else False
+                                parent_id_res = category.get('id_parent') if int(category.get('id_parent')) > 2 else False
                                 category_name = prestashop_store_id.get_value_spanish(category.get('name'))
                                 category_rewrite = prestashop_store_id.get_value_spanish(category.get('link_rewrite'))
+                                if not category_id:
+                                    category_id = self.env['product.category'].search([('name','=',category_name)])
+
                                 if not category_id:
                                     vals = {
                                         'name': category_name,
                                         'prestashop_category_url': category_rewrite,
                                         'prestashop_parent_category_id': parent_id_res,
+                                        'prestashop_category_id': category.get('id'),
                                         'property_cost_method': 'standard',
                                         'property_valuation': 'manual_periodic',
-                                        'prestashop_category_id': category.get('id'),
                                     }
                                     category_id = self.env['product.category'].create(vals)
                                     _logger.info("Product Category Created : {0}".format(category_id.name))
@@ -56,15 +59,14 @@ class ProductCategory(models.Model):
                                         'name': category_name,
                                         'prestashop_category_url': category_rewrite,
                                         'prestashop_parent_category_id': parent_id_res,
-                                        'property_cost_method': 'standard',
-                                        'property_valuation': 'manual_periodic',
                                         'prestashop_category_id': category.get('id'),
+                                        #'property_cost_method': 'standard',
+                                        #'property_valuation': 'manual_periodic',
                                     }
-                                    category_id.write(vals)
+                                    category_id.write(vals, sincronize=False)
                                     _logger.info("Product Category Updated : {0}".format(category_id.name))
                                     process_message = "Product Category Updated : {0}".format(category_id.name)
-                                prestashop_store_id.create_prestashop_operation_detail('product_category', 'import', req_data,
-                                                                            response_data, category_operation_id, False, process_message)
+                                prestashop_store_id.create_prestashop_operation_detail('product_category', 'import', req_data, response_data, category_operation_id, False, process_message)
                                 self._cr.commit()
                         else:
                             _logger.info("Getting an Error In Import Product Category Response {}".format(response_data))
@@ -76,7 +78,7 @@ class ProductCategory(models.Model):
                 if category_ids:
                     for c_id in category_ids:
                         parent_id = self.env['product.category'].search([('prestashop_category_id', '=', c_id.prestashop_parent_category_id)], limit=1)
-                        c_id.parent_id = parent_id and parent_id.id
+                        c_id.write({ 'parent_id': parent_id and parent_id.id }, sincronize=False)
 
                 category_operation_id and category_operation_id.write({'prestashop_message': category_process_message})
                 _logger.info("Import Product Category Process Completed ")
@@ -84,8 +86,7 @@ class ProductCategory(models.Model):
                 _logger.info("Getting an Error In Import Product Category Response {}".format(response_data))
                 response_data = response_data.content
                 process_message = "Getting an Error In Import Product Category Response".format(response_data)
-                prestashop_store_id.create_prestashop_operation_detail('product_category', 'import', req_data, response_data,
-                                                        category_operation_id, True, process_message)
+                prestashop_store_id.create_prestashop_operation_detail('product_category', 'import', req_data, response_data, category_operation_id, True, process_message)
         except Exception as e:
             category_process_message = "Process Is Not Completed Yet! %s" % (e)
             _logger.info("Getting an Error In Import Product Category Response {}".format(e))
