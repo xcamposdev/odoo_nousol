@@ -40,7 +40,10 @@ class ProductCategory(models.Model):
                                 category_name = prestashop_store_id.get_value_spanish(category.get('name'))
                                 category_rewrite = prestashop_store_id.get_value_spanish(category.get('link_rewrite'))
                                 if not category_id:
-                                    category_id = self.env['product.category'].search([('name','=',category_name),('prestashop_parent_category_id','=',parent_id_res)])
+                                    if parent_id_res:
+                                        category_id = self.env['product.category'].search([('name','=',category_name),('parent_id','!=',False)])
+                                    else:
+                                        category_id = self.env['product.category'].search([('name','=',category_name),('parent_id','=',False)])
 
                                 if not category_id:
                                     vals = {
