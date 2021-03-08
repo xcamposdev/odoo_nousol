@@ -31,9 +31,9 @@ class ExportProductPrestashop(models.Model):
         ################################################################
         self._cr.commit()
         try:
-            self = self.env['product.product'].search([('id','=',self.id)])
+            self = self.env['product.template'].search([('id','=',self.id)])
             if sincronize == True:
-                self.categories_sincronize('PUT')
+                self.products_sincronize('PUT')
         except Exception as e:
             _logger.info("Error al importar en prestashop {}".format(e))
         ################################################################
