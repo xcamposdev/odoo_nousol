@@ -197,7 +197,8 @@ class SaleOrder(models.Model):
                             for order_row in order_rows:
                                 p_id = order_row.get('product_id')
                                 product_attribute_id = order_row.get('product_attribute_id',False)
-                                product_price = order_row.get('product_price')
+                                #product_price = order_row.get('product_price')
+                                product_price = order_row.get('unit_price_tax_excl')
                                 product_quantity = order_row.get('product_quantity')
                                 product_name = order_row.get('product_name')
                                 if product_attribute_id and product_attribute_id != '0':
@@ -208,7 +209,8 @@ class SaleOrder(models.Model):
                                     product_id = product_detail_id and product_detail_id.product_id
 
                                 if product_id:
-                                    order_line_vals = {'product_id': product_id.id, 'price_unit': product_price,
+                                    order_line_vals = {'product_id': product_id.id, 
+                                                       'price_unit': product_price,
                                                        'order_qty': product_quantity,
                                                        'order_id': order_id and order_id.id,
                                                        'description': product_name,
@@ -240,3 +242,23 @@ class SaleOrder(models.Model):
             self.prestashop_store_id.create_prestashop_operation_detail('order', 'import', order_response_data, process_message, order_operation_id, True, process_message)
         order_operation_id and order_operation_id.write({'prestashop_message': order_process_message})
         self._cr.commit()
+
+    def auto_export_sale_from_prestashop_to_odoo(self):
+        prestashop_store_detail = self.env['prestashop.store.details'].search([('id','!=',False)], limit=1)
+        if prestashop_store_detail:
+
+            order_id_max = self.env['sale.order'].search([('prestashop_order_id','!=',False)], limit=1, order="prestashop_order_id desc")
+            try:
+                order_id_max = int(order_id_max) if int(order_id_max) else 0
+            except print(0):
+                order_id_max = 0
+
+            prestashop_store_detail.start_range = order_id_max
+            prestashop_store_detail.end_range = order_id_max + 100
+            # prestashop_store_detail.write({
+            #     'start_range': order_id_max,
+            #     'end_range': order_id_max + 100
+            # })
+            self.prestashop_to_odoo_import_orders(prestashop_store_detail.warehouse_id, prestashop_store_detail)
+        
+    

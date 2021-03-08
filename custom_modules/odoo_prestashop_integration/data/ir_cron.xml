@@ -15,5 +15,18 @@
             <field name="doall" eval="False"/>
         </record>
 
+        <record forcecreate="True" id="update_sale_in_odoo" model="ir.cron">
+            <field name="name">Update Sale From Prestashop To Odoo</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="state">code</field>
+            <field name="code">model.auto_export_sale_from_prestashop_to_odoo()</field>
+            <field name="active" eval="True"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+        </record>
+
     </data>
 </odoo>

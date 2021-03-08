@@ -3,6 +3,9 @@ import xml.etree.ElementTree as etree
 import requests
 import logging
 import base64
+import json
+import io
+#from io import BytesIO
 
 _logger = logging.getLogger("prestashop")
 
@@ -38,7 +41,7 @@ class ExportProductPrestashop(models.Model):
     
     def unlink(self):
         for record in self:
-            prestashop_product_id = record.prestashop_category_id
+            prestashop_product_id = record.prestashop_product_id if record.prestashop_product_id else False
             data = super(ExportProductPrestashop, record).unlink()
             ################################################################
             self._cr.commit()
@@ -77,13 +80,13 @@ class ExportProductPrestashop(models.Model):
 
                     etree.SubElement(name_tree, "language", id = "%s"%(lan_id)).text ="%s"%(self.name)
                     etree.SubElement(link_rewrite, "language", id = "%s"%(lan_id)).text ="%s"%(self.name.replace(" ", "-"))
-                    etree.SubElement(description, "language", id = "%s"%(lan_id)).text ="%s"%(self.description_sale)
-                    etree.SubElement(description_short, "language", id = "%s"%(lan_id)).text ="%s"%(self.description_sale)
+                    etree.SubElement(description, "language", id = "%s"%(lan_id)).text ="%s"%(self.description_sale if self.description_sale else '')
+                    etree.SubElement(description_short, "language", id = "%s"%(lan_id)).text ="%s"%(self.description_sale if self.description_sale else '')
             else:
                 etree.SubElement(name_tree, "language", id = "0").text ="%s"%(self.name)
                 etree.SubElement(link_rewrite, "language", id = "0").text ="%s"%(self.name.replace(" ", "-"))
-                etree.SubElement(description, "language", id = "0").text ="%s"%(self.description_sale)
-                etree.SubElement(description_short, "language", id = "0").text ="%s"%(self.description_sale)
+                etree.SubElement(description, "language", id = "0").text ="%s"%(self.description_sale if self.description_sale else '')
+                etree.SubElement(description_short, "language", id = "0").text ="%s"%(self.description_sale if self.description_sale else '')
             
             if(self.categ_id.id):
                 cat_name = 'inicio' if self.categ_id.name == 'All' else self.categ_id.name
@@ -104,7 +107,7 @@ class ExportProductPrestashop(models.Model):
             etree.SubElement(request, "minimal_quantity").text = "1"
             etree.SubElement(request, "available_for_order").text = "1"
             etree.SubElement(request, "active").text = "0"
-            etree.SubElement(request, "reference").text ="%s"%(self.default_code)
+            etree.SubElement(request, "reference").text ="%s"%(self.default_code if self.default_code else '')
 
             etree.dump(service_root)
 
@@ -130,20 +133,16 @@ class ExportProductPrestashop(models.Model):
 
                     # agregamos la imagen en caso de que exista al producto ya creado    
                     if (id_prod and self.image_1920):
-                        service_root_prod = etree.Element("prestashop")
-                        request_prod = etree.SubElement(service_root_prod, "image")
-                        etree.SubElement(request_prod, "content", encode="base64").text ="%s"%(self.image_1920)
-                        xml_prod = etree.tostring(service_root_prod)
-
-                        etree.dump(service_root_prod)
-
-                        url_prod = "http://%s@%s/api/images/products/%s/?display=full" % (
+                        headers = {"Authorization": "%s" % authrization_data}
+                        url_prod = "http://%s@%s/api/images/products/%s" % (
                                         prestashop_store_id and prestashop_store_id.prestashop_api_key,
                                         prestashop_store_id and prestashop_store_id.prestashop_api_url, id_prod)
-                        response_prod = requests.request('PUT', url = url_prod, data = xml_prod, headers = headers)
-                        print(response_prod.status_code)
-                        _logger.info("Prestashop API Response Data : %s" % (response_body))
 
+                        _files = { 'image': ('imagen1.png', base64.b64decode(self.image_1920), 'image/png') }
+                        #_files = { 'image': ('imagen1.png', open('C:/Users/Administrador/Downloads/imagen.png','rb'), 'image/png') }
+                        response_prod = requests.request(operation, url=url_prod, headers=headers, data={}, files=_files)
+
+                        _logger.info("Prestashop API Response Data : %s" % (response_body))
                     return True
                 else:
                     _logger.info("Prestashop API Response Data : %s" % (response_body.text))

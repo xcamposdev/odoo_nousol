@@ -14,7 +14,8 @@ class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     prestashop_product = fields.Boolean('Prestashop Product')
-
+    prestashop_product_id = fields.Char("prestashop product ID", copy=False)
+    
     def create_prestashop_product_variant(self, attribute_ids=False):
         attribute_list = []
         attribute_and_value_list = []
@@ -121,6 +122,7 @@ class ProductTemplate(models.Model):
                                     prestashop_store_id.create_prestashop_operation_detail('product', 'import', api_operation, product_response_data, product_operation_id, False, process_message)
                                     continue
                                 template_title = prestashop_store_id.get_value_spanish(template_title)
+                             
                                 if not product_id:
                                     product_tmpl_id = self.create({
                                         'name': template_title,
@@ -129,7 +131,8 @@ class ProductTemplate(models.Model):
                                         'categ_id': category_id and category_id.id,
                                         "weight": product_dict.get("weight"),
                                         "list_price": product_dict.get("price"),
-                                        'prestashop_product':True
+                                        'prestashop_product':True,
+                                        'prestashop_product_id': prod_id
                                     })
                                     product_id = product_tmpl_id and product_tmpl_id.product_variant_id
                                     _logger.info("Product Created : {0}".format(product_tmpl_id.name))
