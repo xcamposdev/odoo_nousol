@@ -29,7 +29,7 @@ class ProductAttribute(models.Model):
                         product_value_options = response_data.get('product_option_values')
                         for product_value_option in product_value_options:
                             prestashop_attribute_value_id = product_value_option.get('id')
-                            attribute_name = product_value_option.get('name')
+                            attribute_name = prestashop_store_id.get_value_spanish(product_value_option.get('name'))
                             attribute_value_id = self.env['product.attribute.value'].search([('prestashop_attribute_value_id', '=', prestashop_attribute_value_id)])
                             if not attribute_value_id:
                                 attribute_value_id = self.env['product.attribute.value'].create({
@@ -84,13 +84,13 @@ class ProductAttribute(models.Model):
             prestashop_store_id and prestashop_store_id.prestashop_api_url)
 
             response_status, response_data = prestashop_store_id.send_get_request_from_odoo_to_prestashop(api_operation)
-            if response_status:
+            if response_status and len(response_data) > 0:
                 _logger.info("prestashop Get Product Response : {0}".format(response_data))
                 product_options = response_data.get('product_options')
                 for product_option in product_options:
                     group_type = product_option.get('group_type')
                     prestashop_attribute_id = product_option.get('id')
-                    attribute_name = product_option.get('name')
+                    attribute_name = prestashop_store_id.get_value_spanish(product_option.get('name'))
                     attribute_associations = product_option.get('associations') and product_option.get('associations').get('product_option_values')
                     attribute_id = self.search([('prestashop_attribute_id', '=', prestashop_attribute_id)])
                     if not attribute_id:

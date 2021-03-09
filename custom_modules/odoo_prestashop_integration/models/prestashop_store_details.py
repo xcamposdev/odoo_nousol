@@ -2,7 +2,7 @@ import base64
 import logging
 from odoo import models, fields, api, _
 from requests import request
-
+import json
 
 _logger = logging.getLogger("prestashop")
 
@@ -64,29 +64,6 @@ class prestashopCredentailDetails(models.Model):
             _logger.info("Prestashop API Response Data : %s" % (e))
             return False, e
 
-    def import_products_from_prestashop(self):
-        product_obj = self.env['product.template']
-        product_obj.prestashop_to_odoo_import_product(self.warehouse_id, self)
-        return {
-            'effect': {
-                'fadeout': 'slow',
-                'message': "Product Imported Successfully.",
-                'img_url': '/web/static/src/img/smile.svg',
-                'type': 'rainbow_man',
-            }
-        }
-
-    def import_product_stock_from_prestashop(self):
-        product_stock_obj = self.env['stock.inventory']
-        product_stock_obj.prestashop_to_odoo_import_stock_inventory(self.warehouse_id, self)
-        return {
-            'effect': {
-                'fadeout': 'slow',
-                'message': "Product Imported Successfully.",
-                'img_url': '/web/static/src/img/smile.svg',
-                'type': 'rainbow_man',
-            }
-        }
 
     def import_categories_from_prestashop(self):
         product_category_obj = self.env['product.category']
@@ -99,6 +76,19 @@ class prestashopCredentailDetails(models.Model):
                 'type': 'rainbow_man',
             }
         }
+
+    def import_products_from_prestashop(self):
+        product_obj = self.env['product.template']
+        product_obj.prestashop_to_odoo_import_product(self.warehouse_id, self)
+        return {
+            'effect': {
+                'fadeout': 'slow',
+                'message': "Product Imported Successfully.",
+                'img_url': '/web/static/src/img/smile.svg',
+                'type': 'rainbow_man',
+            }
+        }
+
     def import_order_from_prestashop(self):
         sale_order_obj = self.env['sale.order']
         sale_order_obj.prestashop_to_odoo_import_orders(self.warehouse_id, self)
@@ -120,6 +110,18 @@ class prestashopCredentailDetails(models.Model):
             'effect': {
                 'fadeout': 'slow',
                 'message': "Product Attribute Imported Successfully.",
+                'img_url': '/web/static/src/img/smile.svg',
+                'type': 'rainbow_man',
+            }
+        }
+
+    def import_product_stock_from_prestashop(self):
+        product_stock_obj = self.env['stock.inventory']
+        product_stock_obj.prestashop_to_odoo_import_stock_inventory(self.warehouse_id, self)
+        return {
+            'effect': {
+                'fadeout': 'slow',
+                'message': "Product Imported Successfully.",
                 'img_url': '/web/static/src/img/smile.svg',
                 'type': 'rainbow_man',
             }
@@ -156,3 +158,8 @@ class prestashopCredentailDetails(models.Model):
         action = self.env.ref('odoo_prestashop_integration.action_prestashop_operation').read()[0]
         action['context'] = {'default_prestashop_store_id': self.id}
         return action
+
+    
+    def get_value_spanish(self, name):
+        data_find = list(_data for _data in name if _data['id'] == '1')
+        return data_find[0]['value']

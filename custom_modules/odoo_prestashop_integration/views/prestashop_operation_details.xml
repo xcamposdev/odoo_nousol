@@ -107,12 +107,12 @@
 
 
         <menuitem id="menu_prestashop_operation_detail" name="prestashop Process Details"
-                  parent="prestashop_integration" sequence="4"
+                  parent="prestashop_integration" sequence="2"
                   action="action_prestashop_operation"/>
 
 
         <menuitem id="menu_prestashop_operation_details" name="Fault Details"
-                  parent="prestashop_integration" sequence="5"
+                  parent="prestashop_integration" sequence="3"
                   action="action_prestashop_operation_details"/>
     </data>
     <data noupdate="1">

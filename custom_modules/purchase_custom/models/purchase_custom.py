@@ -24,6 +24,12 @@ class purchase_custom(models.Model):
     x_discount_percent = fields.Float("Desc. %", default=0)
 
 
+    @api.onchange('partner_id')
+    def onchange_partner_id(self):
+        super(purchase_custom, self).onchange_partner_id()
+        self.x_discount_pp = self.partner_id.x_descuento_pp
+        self.x_discount_percent = self.partner_id.x_descuento_comercial
+		
     @api.depends('order_line.price_total','x_discount_pp','x_discount_percent')
     def _amount_all(self):
         for order in self:
