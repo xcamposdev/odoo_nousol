@@ -28,6 +28,7 @@ class sale_discount_custom(models.Model):
         self.x_discount_pp = self.partner_id.x_descuento_pp
         #self.x_discount_percent = self.partner_id.x_descuento_comercial
 
+
     @api.depends('order_line.price_total','x_discount_pp','x_discount_percent')
     def _amount_all(self):
         """
