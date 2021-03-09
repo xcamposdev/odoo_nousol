@@ -1,4 +1,11 @@
 <odoo>
+    <data noupdate="1">
+        <record id="x_prestashop_crud" model="ir.config_parameter">
+            <field name="key">x_prestashop_crud</field>
+            <field name="value">0</field>
+        </record>
+    </data>
+
     <data>
 
         <record id="view_prestashop_store_details" model="ir.ui.view">

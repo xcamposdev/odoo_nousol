@@ -14,25 +14,29 @@ class ExportProductCategoryPrestashop(models.Model):
     def create(self, vals_list):
         data = super(ExportProductCategoryPrestashop, self).create(vals_list)
         ################################################################
-        self._cr.commit()
-        try:
-            self = data
-            self.categories_sincronize('POST')
-        except Exception as e:
-            _logger.info("Error al importar en prestashop {}".format(e))
+        prestashop_crud = self.env['ir.config_parameter'].sudo().get_param('x_prestashop_crud')
+        if int(prestashop_crud):
+            self._cr.commit()
+            try:
+                self = data
+                self.categories_sincronize('POST')
+            except Exception as e:
+                _logger.info("Error al importar en prestashop {}".format(e))
         ################################################################
         return data
 
     def write(self, values, sincronize=True):
         data = super(ExportProductCategoryPrestashop, self).write(values)
         ################################################################
-        self._cr.commit()
-        try:
-            self = self.env['product.category'].search([('id','=',self.id)])
-            if sincronize == True:
-                self.categories_sincronize('PUT')
-        except Exception as e:
-            _logger.info("Error al importar en prestashop {}".format(e))
+        prestashop_crud = self.env['ir.config_parameter'].sudo().get_param('x_prestashop_crud')
+        if int(prestashop_crud):
+            self._cr.commit()
+            try:
+                self = self.env['product.category'].search([('id','=',self.id)])
+                if sincronize == True:
+                    self.categories_sincronize('PUT')
+            except Exception as e:
+                _logger.info("Error al importar en prestashop {}".format(e))
         ################################################################
         return data
     
@@ -41,12 +45,14 @@ class ExportProductCategoryPrestashop(models.Model):
             prestashop_category_id = record.prestashop_category_id
             data = super(ExportProductCategoryPrestashop, record).unlink()
             ################################################################
-            self._cr.commit()
-            try:
-                if prestashop_category_id:
-                    self.categories_sincronize_delete(prestashop_category_id)
-            except Exception as e:
-                _logger.info("Error al importar en prestashop {}".format(e))
+            prestashop_crud = self.env['ir.config_parameter'].sudo().get_param('x_prestashop_crud')
+            if int(prestashop_crud):
+                self._cr.commit()
+                try:
+                    if prestashop_category_id:
+                        self.categories_sincronize_delete(prestashop_category_id)
+                except Exception as e:
+                    _logger.info("Error al importar en prestashop {}".format(e))
             ################################################################
         return data
 
