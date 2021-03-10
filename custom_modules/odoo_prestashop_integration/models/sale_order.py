@@ -9,7 +9,7 @@ class SaleOrder(models.Model):
 
     prestashop_order_id = fields.Char("prestashop Order ID", copy=False)
     prestashop_reference = fields.Char("prestashop Reference", copy=False)
-    prestashop_order_imported = fields.Boolean(default=False, string="prestashop Order ID", copy=False)
+    prestashop_order_imported = fields.Boolean(default=False, string="prestashop Order ID B", copy=False)
     prestashop_store_id = fields.Many2one('prestashop.store.details', string="Prestashop Store")
 
     def create_sales_order_from_prestashop(self, vals):
@@ -246,19 +246,16 @@ class SaleOrder(models.Model):
     def auto_export_sale_from_prestashop_to_odoo(self):
         prestashop_store_detail = self.env['prestashop.store.details'].search([('id','!=',False)], limit=1)
         if prestashop_store_detail:
-
-            order_id_max = self.env['sale.order'].search([('prestashop_order_id','!=',False)], limit=1, order="prestashop_order_id desc")
+            #order_id_max = self.env['sale.order'].search([('prestashop_order_id','!=',False)], limit=1, order="prestashop_order_id desc")
+            self._cr.execute('select prestashop_order_id From sale_order where prestashop_order_id is not null order by prestashop_order_id::int desc limit 1')
+            order_id_max = self._cr.dictfetchall()
             try:
-                order_id_max = int(order_id_max) if int(order_id_max) else 0
+                prestashop_order_id = order_id_max[0]['prestashop_order_id']
+                order_id_max = int(prestashop_order_id) if int(prestashop_order_id) else 0
             except print(0):
                 order_id_max = 0
 
             prestashop_store_detail.start_range = order_id_max
             prestashop_store_detail.end_range = order_id_max + 100
-            # prestashop_store_detail.write({
-            #     'start_range': order_id_max,
-            #     'end_range': order_id_max + 100
-            # })
+            
             self.prestashop_to_odoo_import_orders(prestashop_store_detail.warehouse_id, prestashop_store_detail)
-        
-    
